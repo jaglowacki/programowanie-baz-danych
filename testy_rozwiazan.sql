@@ -1,3 +1,8 @@
+--ZADANIE 3.2
+--Na podstawie bazy Northwind-napisaæ funkcjê zwracaj¹c¹ wartoœæ sprzeda¿y towarów w podanych parametrami: 
+--kategorii i nazwie klienta. Funkcja nigdy nie powinna zwracaæ wartoœci Null
+
+
 USE Northwind
 
 SELECT SUM(OD.UnitPrice * OD.Quantity) FROM Customers C 
