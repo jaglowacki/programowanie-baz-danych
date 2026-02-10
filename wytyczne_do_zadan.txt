@@ -1,0 +1,36 @@
+Programowanie baz danych - zadania
+Tomasz Staœ
+•
+Wczoraj
+100 punktów
+Termin: 28 lut, 23:59
+Zadania zaliczeniowe:
+
+na ocenê DST:
+
+3.1) napisaæ funkcjê sprawdzaj¹c¹ czy podany w argumencie tekst jest palindromem (sprawdziæ w dokumentacji wbudowane funkcje tekstowe).
+
+3.2) na podstawie bazy Northwind - napisaæ funkcjê zwracaj¹c¹ wartoœæ sprzeda¿y towarów w podanych parametrami: kategorii i nazwie klienta. Funkcja nigdy nie powinna zwracaæ wartoœci Null
+
+3.3) 
+
+na podstawie bazy Northwind  - napisaæ funkcjê zwracaj¹c¹ unikalne nazwy klientów, którzy dokonali zakupu w miesi¹cu - podanym parametrem.
+
+Na ocenê DB:
+
+- wszystkie zadania na ocenê DST i dodatkowo:
+
+4.1) poprawiæ funkcjê czy_pesel (napisan¹ wspólne podczas zajêæ), tak aby by³a odporna na b³êdne parametry (wyœwietla³a stosowny komunikat, zamiast generowania b³êdów), funkcja powinna byæ 'u¿yszkodnikoodporna' - funkcja powinna równie¿ dzia³aæ poprawnie w przypadku numerów PESEL koñcz¹cych siê cyfr¹ 0.
+
+4.2) napisaæ procedurê dodaj¹c¹ nowego studenta (do tabeli 'Studenci' z zajêæ). Procedura nie powinna pozwoliæ na dopisanie studenta niepe³noletniego
+
+Na ocenê BDB:
+
+- wszystkie zadania na ocenê DB i dodatkowo:
+
+5.1) utworzyæ tabelê: klienci ={id_klienta, imie, nazwisko, plec, data_urodzenia, pesel}. Napisaæ wyzwalacz, który sprawdzi poprawnoœæ wprowadzonego numeru PESEL oraz dopasowanie podanych wartoœci daty urodzenia i p³ci do numery PESEL.
+
+5.2) W tabeli 'studenci' utworzyæ wyzwalacz, który uniemo¿liwi dopisanie niepe³noletnich matek.
+
+
+Odpowiedzi na zadania powinny byæ podpisane przez Autora imieniem i nazwiskiem oraz odpowiednio ponumerowane. Nale¿y je zamieœciæ w jednym pliku tekstowym. Kod powinien zawieraæ równie¿ polecenia sprawdzaj¹ce poprawnoœæ dzia³ania utworzonych struktur programistycznych.
