@@ -38,6 +38,41 @@ SELECT dbo.czy_palindrom('') AS 'Wynik'
 --Na podstawie bazy Northwind-napisaæ funkcjê zwracaj¹c¹ wartoœæ sprzeda¿y towarów w podanych parametrami: 
 --kategorii i nazwie klienta. Funkcja nigdy nie powinna zwracaæ wartoœci Null
 
+USE Northwind
 
+CREATE FUNCTION sprzedaz_klient_kategoria(@klient VARCHAR(max), @kategoria VARCHAR(max)) RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @wynik FLOAT
+    SET @wynik=(SELECT SUM(OD.UnitPrice * OD.Quantity) FROM Customers C 
+                JOIN Orders O ON C.CustomerID=O.CustomerID
+                JOIN [Order Details] OD ON O.OrderID=OD.OrderID
+                JOIN Products P ON OD.ProductID=P.ProductID
+                JOIN Categories CAT ON P.CategoryID=CAT.CategoryID
+                WHERE C.CompanyName=@klient AND CAT.CategoryName=@kategoria)
+    IF (@wynik IS NULL)
+        SET @wynik=0
+    RETURN @wynik
+END
 
+--Sprawdzenie
+SELECT dbo.sprzedaz_klient_kategoria('Antonio Moreno Taquería','Beverages') AS 'Wartoœæ Sprzeda¿y'
+SELECT dbo.sprzedaz_klient_kategoria('Piccolo und mehr','Condiments') AS 'Wartoœæ Sprzeda¿y'
+
+--ZADANIE 3.3
+--Na podstawie bazy Northwind-napisaæ funkcjê zwracaj¹c¹ unikalne nazwy klientów, 
+--którzy dokonali zakupu w miesi¹cu-podanym parametrem.
+--Zak³adam, ¿e interesuj¹cy nas miesi¹c podawany jest w postaci cyfry od 1 do 12
+
+USE Northwind
+
+CREATE FUNCTION klient_miesiac_zakupu(@miesiac TINYINT) RETURNS TABLE
+AS
+RETURN (SELECT DISTINCT C.CompanyName FROM Customers C
+        JOIN Orders O ON C.CustomerID=O.CustomerID
+        WHERE MONTH(O.OrderDate)=@miesiac)
+
+--Sprawdzenie
+SELECT * FROM dbo.klient_miesiac_zakupu(3)
+SELECT * FROM dbo.klient_miesiac_zakupu(7)
 
