@@ -128,7 +128,7 @@ SELECT * FROM dbo.klient_miesiac_zakupu(7)
 -- m = suma % 10 = 4
 -- if (c = 10-m) TRUE jest PESEL OK
 
-ALTER FUNCTION czy_pesel(@pesel CHAR(11)) RETURNS INT
+CREATE FUNCTION czy_pesel(@pesel CHAR(11)) RETURNS INT
 AS
 BEGIN
     DECLARE @suma INT, @m INT, @wynik TINYINT=0 -- tu inicjujemy
@@ -149,9 +149,73 @@ BEGIN
     RETURN @wynik
 END
 
-SELECT dbo.czy_pesel('44051014582')
+--Sprawdzenie: PESEL Poprawny
 SELECT dbo.czy_pesel('44051014586')
-SELECT dbo.czy_pesel('22222222222')
 SELECT dbo.czy_pesel('49040501580')
 
+--Sprawdzenie: PESEL B³êdny
+SELECT dbo.czy_pesel('44051014582')
+SELECT dbo.czy_pesel('44051O14586')
+SELECT dbo.czy_pesel('4405101458')
+
+
 SELECT (10-0)%10, (10-1)%10, (10-2)%10
+
+
+--ZADANIE 4.2
+--Napisaæ procedurê dodaj¹c¹ nowego studenta (do tabeli 'Studenci' z zajêæ). 
+--Procedura nie powinna pozwoliæ na dopisanie studenta niepe³noletniego
+
+USE Studenci
+
+SELECT * FROM studenci
+
+INSERT INTO "studenci" (imie, nazwisko, data_urodzenia, plec, miasto, liczba_dzieci)
+VALUES ('Janusz', 'G³owacki', '2008-06-25', 'M', 'Piekary Œl¹skie', 1)
+
+DELETE FROM studenci WHERE Nazwisko = 'G³owacki'
+
+
+
+
+ALTER PROCEDURE dodaj_studenta 
+    @imie VARCHAR(20),
+    @nazwisko VARCHAR(30),
+    @data_urodzenia DATETIME,
+    @plec CHAR(1),
+    @miasto VARCHAR(30),
+    @liczba_dzieci INT
+AS
+IF @data_urodzenia<=DATEADD(YEAR, -18, GETDATE())
+    BEGIN
+        INSERT INTO "studenci" (imie, nazwisko, data_urodzenia, plec, miasto, liczba_dzieci)
+        VALUES (@imie, @nazwisko, @data_urodzenia, @plec, @miasto, @liczba_dzieci)
+        PRINT CONCAT('Dodano studenta: ', @imie, ' ', @nazwisko)
+    END
+ELSE 
+    BEGIN
+        RAISERROR('Student nie mo¿e byæ niepe³noletni !',16,1)
+        RETURN -1
+    END
+
+EXEC dodaj_studenta 
+    @imie = 'Janusz',
+    @nazwisko = 'G³owacki',
+    @data_urodzenia = '2008-02-12',
+    @plec = 'M',
+    @miasto = 'Piekary Œl¹skie',
+    @liczba_dzieci = 6;
+
+
+
+
+
+SELECT DATEADD(DD, 1, GETDATE())
+
+DELETE FROM studenci WHERE Nazwisko = 'G³owacki'
+
+
+SELECT * FROM studenci 
+WHERE DATEDIFF(yy, data_urodzenia, GETDATE())>=18
+
+SELECT * FROM studenci WHERE data_urodzenia<=DATEADD(YEAR, -18, GETDATE())
