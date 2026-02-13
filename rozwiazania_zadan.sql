@@ -82,7 +82,7 @@ SELECT * FROM dbo.klient_miesiac_zakupu(7)
 --'u¿yszkodnikoodporna' - funkcja powinna równie¿ dzia³aæ poprawnie w przypadku numerów 
 --PESEL koñcz¹cych siê cyfr¹ 0.
 
-CREATE FUNCTION czy_pesel(@pesel CHAR(11)) RETURNS INT
+CREATE FUNCTION czy_pesel(@pesel CHAR(11)) RETURNS TINYINT
 AS
 BEGIN
     DECLARE @suma INT, @m INT, @wynik TINYINT=0 -- tu inicjujemy
@@ -154,3 +154,105 @@ EXEC dodaj_studenta
     @plec = 'M',
     @miasto = 'Tarnowskie Góry',
     @liczba_dzieci = 2;
+
+--ZADANIE 5.1 Utworzyæ tabelê: klienci ={id_klienta, imie, nazwisko, plec, data_urodzenia, pesel}. 
+--Napisaæ wyzwalacz, który sprawdzi poprawnoœæ wprowadzonego numeru PESEL oraz 
+--dopasowanie podanych wartoœci daty urodzenia i p³ci do numery PESEL.
+
+--Utworzenie pustaj tabeli
+
+USE Studenci
+
+CREATE TABLE klienci(
+  "id_klienta" int primary key identity,
+  "imie" varchar(20) default NULL,
+  "nazwisko" varchar(30) default NULL,
+  "plec" char(1) default NULL,
+  "data_urodzenia" datetime default NULL,
+  "pesel" CHAR(11) default NULL)
+
+--Korzystam z funkcji z ZADANIA 4.1 czy pesel, dla przypomnienia
+
+CREATE FUNCTION czy_pesel(@pesel CHAR(11)) RETURNS TINYINT
+AS
+BEGIN
+    DECLARE @suma INT, @m INT, @wynik TINYINT=0 
+    SET @suma=CAST(SUBSTRING(@pesel,1,1) AS INT) * 1 + 
+              CAST(SUBSTRING(@pesel,2,1) AS INT) * 3 +
+              CAST(SUBSTRING(@pesel,3,1) AS INT) * 7 +
+              CAST(SUBSTRING(@pesel,4,1) AS INT) * 9 +
+              CAST(SUBSTRING(@pesel,5,1) AS INT) * 1 +
+              CAST(SUBSTRING(@pesel,6,1) AS INT) * 3 +
+              CAST(SUBSTRING(@pesel,7,1) AS INT) * 7 +
+              CAST(SUBSTRING(@pesel,8,1) AS INT) * 9 +
+              CAST(SUBSTRING(@pesel,9,1) AS INT) * 1 +
+              CAST(SUBSTRING(@pesel,10,1) AS INT) * 3 
+    SET @m = @suma % 10
+    IF (LEN(@pesel)=11) AND (@pesel NOT LIKE '%[^0-9]%') 
+    AND (CAST(SUBSTRING(@pesel,11,1) AS INT)=(10-@m) % 10)
+        SET @wynik=1
+    RETURN @wynik
+END
+
+--Definiujê funkcjê sparawdzaj¹c¹, czy numer PESEL odpowiada dacie urodzenia
+
+CREATE FUNCTION czy_data(@pesel CHAR(11), @data DATETIME) RETURNS TINYINT
+AS
+BEGIN
+    DECLARE @rr INT, @mm INT, @dd INT, @data_z_pesel DATETIME,
+            @rok INT=0, @miesiac INT=0, @wynik TINYINT=0 
+    SET @rr=CAST(SUBSTRING(@pesel,1,2) AS INT)
+    SET @mm=CAST(SUBSTRING(@pesel,3,2) AS INT)
+    SET @dd=CAST(SUBSTRING(@pesel,5,2) AS INT)
+    IF @mm BETWEEN 81 AND 92 SET @rok=@rr+1800
+    ELSE IF @mm BETWEEN 1 AND 12 SET @rok=@rr+1900
+    ELSE IF @mm BETWEEN 21 AND 32 SET @rok=@rr+2000
+    ELSE IF @mm BETWEEN 41 AND 52 SET @rok=@rr+2100
+    ELSE IF @mm BETWEEN 61 AND 72 SET @rok=@rr+2200
+    IF @mm>20 SET @miesiac=@mm%20 ELSE SET @miesiac=@mm
+    IF (@rok BETWEEN 1800 AND 2299) AND (@miesiac BETWEEN 1 AND 12) 
+    BEGIN
+        SET @data_z_pesel=DATEFROMPARTS(@rok, @miesiac, @dd)
+        IF @data=@data_z_pesel SET @wynik=1
+    END
+    RETURN @wynik
+END
+
+--utworzenie wyzwalacza
+
+CREATE TRIGGER klienci_not_ok
+ON klienci
+FOR INSERT
+AS
+IF EXISTS (SELECT * FROM INSERTED I WHERE dbo.czy_pesel(I.pesel) = 0)
+    BEGIN
+        PRINT('Poda³eœ ninepoprawny PESEL!')
+        ROLLBACK 
+    END
+IF EXISTS (SELECT * FROM INSERTED I 
+           WHERE (CAST(SUBSTRING(I.pesel,10,1) AS INT) % 2 = 0 AND I.plec <> 'K')
+              OR (CAST(SUBSTRING(I.pesel,10,1) AS INT) % 2 = 1 AND I.plec <> 'M'))
+    BEGIN
+        PRINT('Wprowadzona p³eæ nie odpowiada numerowi PESEL')
+        ROLLBACK
+    END
+IF EXISTS (SELECT * FROM INSERTED I WHERE dbo.czy_data(I.pesel,I.data_urodzenia)=0)
+    BEGIN
+        PRINT('Data urodzenie nie odpowiada numerowi PESEL')
+        ROLLBACK 
+    END
+
+--sprawdzenie (b³êdne dane)
+
+INSERT INTO klienci(imie, nazwisko, plec, data_urodzenia, pesel)
+VALUES ('Joanna', 'Kowalska', 'K', '1949-04-15', '49040501580')
+
+INSERT INTO klienci(imie, nazwisko, plec, data_urodzenia, pesel)
+VALUES ('Joanna', 'Kowalska', 'M', '1949-04-05', '49040501580')
+
+INSERT INTO klienci(imie, nazwisko, plec, data_urodzenia, pesel)
+VALUES ('Joanna', 'Kowalska', 'K', '1949-04-05', '49040501581')
+
+-- sprawdzenie (dane poprawne)
+INSERT INTO klienci(imie, nazwisko, plec, data_urodzenia, pesel)
+VALUES ('Joanna', 'Kowalska', 'K', '1949-04-05', '49040501580')
