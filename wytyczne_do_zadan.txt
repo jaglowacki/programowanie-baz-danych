@@ -33,4 +33,5 @@ Na ocenê BDB:
 5.2) W tabeli 'studenci' utworzyæ wyzwalacz, który uniemo¿liwi dopisanie niepe³noletnich matek.
 
 
-Odpowiedzi na zadania powinny byæ podpisane przez Autora imieniem i nazwiskiem oraz odpowiednio ponumerowane. Nale¿y je zamieœciæ w jednym pliku tekstowym. Kod powinien zawieraæ równie¿ polecenia sprawdzaj¹ce poprawnoœæ dzia³ania utworzonych struktur programistycznych.
+Odpowiedzi na zadania powinny byæ podpisane przez Autora imieniem i nazwiskiem oraz odpowiednio ponumerowane.
+Nale¿y je zamieœciæ w jednym pliku tekstowym. Kod powinien zawieraæ równie¿ polecenia sprawdzaj¹ce poprawnoœæ dzia³ania utworzonych struktur programistycznych.
