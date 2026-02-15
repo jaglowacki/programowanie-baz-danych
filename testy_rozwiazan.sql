@@ -311,3 +311,32 @@ INSERT INTO klienci(imie, nazwisko, plec, data_urodzenia, pesel)
 VALUES ('Joanna', 'Kowalska', 'K', '1949-04-05', '49040501580')
 
 DELETE FROM klienci WHERE Nazwisko = 'Kowalska'
+
+
+--ZADANIE 5.2 W tabeli 'studenci' utworzyæ wyzwalacz, który uniemo¿liwi dopisanie niepe³noletnich matek.
+
+USE pbd_podyplom
+
+CREATE TRIGGER matka_not_ok
+ON studenci
+FOR INSERT
+AS
+IF EXISTS (SELECT * FROM INSERTED I WHERE I.plec='K' AND I.liczba_dzieci>0 AND I.data_urodzenia>DATEADD(YEAR, -18, GETDATE()))
+    BEGIN
+        PRINT('Próba wprowadzenia do bazy niepe³noletniej matki!')
+        ROLLBACK 
+    END
+
+--Sprawdzenie-dane z niepe³noletni¹ matk¹
+INSERT INTO studenci (imie, nazwisko, data_urodzenia, plec, miasto, liczba_dzieci)
+VALUES ('Jadwiga', 'Rajner', '2009-02-12', 'K', 'Bytom', 1)
+
+--Sprawdzenie-poprawne dane
+INSERT INTO studenci (imie, nazwisko, data_urodzenia, plec, miasto, liczba_dzieci)
+VALUES ('Monika', 'G³owacka', '1976-03-31', 'K', 'Piekary Œl¹skie', 1)
+INSERT INTO studenci (imie, nazwisko, data_urodzenia, plec, miasto, liczba_dzieci)
+VALUES ('Roman', 'Rajner', '2009-02-12', 'M', 'Bytom', 1)
+INSERT INTO studenci (imie, nazwisko, data_urodzenia, plec, miasto, liczba_dzieci)
+VALUES ('Dominika', 'Tomczyk', '2008-09-12', 'K', 'Bytom', 0)
+
+SELECT * FROM studenci
